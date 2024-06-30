@@ -1,25 +1,32 @@
 
 
-const { App } = require('@slack/bolt');
+const { App, ExpressReceiver } = require('@slack/bolt');
 const ngrok = require('ngrok');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
 
-// creating app and adding secret keys
-const app = new App({
+// creating receiver with "/shortcut" endpoint for slack events
+const receiver = new ExpressReceiver({
     signingSecret: process.env.SLACK_SIGNING_SECRET,
+    endpoints: {
+        "/shortcut": "/shortcut"
+    }
+})
+
+// creating app and adding secret keys
+const slackApp = new App({
     token: process.env.SLACK_BOT_TOKEN,
+    receiver: receiver
 });
 
 
-app.shortcut("tagnmessage", async ({ shortcut, ack, client }) => {
+slackApp.shortcut("tagnmessage", async ({ shortcut, ack, client }) => {
     try {
         await ack();
 
-
-        const result = await client.views.open({
+        await client.views.open({
             trigger_id: shortcut.trigger_id,
             view: {
                 type: "modal",
@@ -27,6 +34,10 @@ app.shortcut("tagnmessage", async ({ shortcut, ack, client }) => {
                 title: {
                     type: "plain_text",
                     text: "Send Message"
+                },
+                submit: {
+                    type: "plain_text",
+                    text: "Send"
                 },
                 blocks: [
                     {
@@ -62,15 +73,17 @@ app.shortcut("tagnmessage", async ({ shortcut, ack, client }) => {
 })
 
 
-app.view("message_view", async ({ ack, body, view, client }) => {
+slackApp.view("message_view", async ({ ack, body, view, client }) => {
     await ack();
+    const sender = body.user.id;
     const user = view.state.values.user_pick.selected_user.selected_user;
     const message = view.state.values.message_input.message.value;
-
+    
     try {
+
         await client.chat.postMessage({
             channel: user,
-            text: message
+            text: `Message from <@${sender}>: ${message}`,
         })
     } catch (error) {
         console.error(error);
@@ -85,12 +98,11 @@ app.view("message_view", async ({ ack, body, view, client }) => {
 async function startApp() {
     try {
         const port = process.env.PORT;
-        await app.start(port);
+        await slackApp.start(port);
         console.log(`server is running on port ${port}!`);
         const url = await ngrok.connect({
-            addr: 8080,
+            addr: port,
             authtoken: process.env.NGROK_AUTH_TOKEN,
-            subdomain: "/tagnmessage"
         });
         console.log(`Slack Bolt app is running! URL: ${url}`);
     } catch (error) {
