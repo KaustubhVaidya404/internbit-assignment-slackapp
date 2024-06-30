@@ -83,7 +83,7 @@ slackApp.view("message_view", async ({ ack, body, view, client }) => {
 
         await client.chat.postMessage({
             channel: user,
-            text: `Message from <@${sender}>: ${message}`,
+            text: `<@${sender}>: ${message}`,
         })
     } catch (error) {
         console.error(error);
