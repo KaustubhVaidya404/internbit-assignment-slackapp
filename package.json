@@ -1,0 +1,16 @@
+{
+  "name": "internbit",
+  "version": "1.0.0",
+  "description": "assignment project",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Kaustubh Vaidya",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/bolt": "^3.19.0",
+    "dotenv": "^16.4.5",
+    "ngrok": "^5.0.0-beta.2"
+  }
+}
