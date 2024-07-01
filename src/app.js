@@ -25,7 +25,6 @@ const slackApp = new App({
 slackApp.shortcut("tagnmessage", async ({ shortcut, ack, client }) => {
     try {
         await ack();
-
         await client.views.open({
             trigger_id: shortcut.trigger_id,
             view: {
