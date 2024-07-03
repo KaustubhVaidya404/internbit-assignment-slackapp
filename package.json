@@ -4,14 +4,21 @@
   "description": "assignment project",
   "main": "app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start-js": "node src/app.js",
+    "build": "npx tsc",
+    "start": "node out/index.js",
+    "dev": "npx tsc & node out/index.js"
   },
   "author": "Kaustubh Vaidya",
   "license": "ISC",
   "dependencies": {
     "@slack/bolt": "^3.19.0",
+    "@types/node": "^20.14.9",
     "dotenv": "^16.4.5",
     "ngrok": "^5.0.0-beta.2"
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  }
 }
